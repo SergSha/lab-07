@@ -46,10 +46,10 @@
   roles:
     - { role: chrony, tags: chrony_tag }
     - { role: jump-servers, when: "'jump_servers' in group_names", tags: jump-servers_tag }
-    - { role: db-servers, when: "'db_servers' in group_names", tags: db-servers_tag }
-    - { role: iscsi-servers, when: "'iscsi_servers' in group_names", tags: iscsi-servers_tag }
-    - { role: backend-servers, when: "'backend_servers' in group_names", tags: backend-servers_tag }
-    #- { role: haproxy-servers, when: "'haproxy_servers' in group_names" tags: haproxy-servers_tag }
-    - { role: nginx-servers, when: "'nginx_servers' in group_names", tags: nginx-servers_tag }
+    #- { role: db-servers, when: "'db_servers' in group_names", tags: db-servers_tag }
+    #- { role: iscsi-servers, when: "'iscsi_servers' in group_names", tags: iscsi-servers_tag }
+    #- { role: backend-servers, when: "'backend_servers' in group_names", tags: backend-servers_tag }
+    ##- { role: haproxy-servers, when: "'haproxy_servers' in group_names" tags: haproxy-servers_tag }
+    #- { role: nginx-servers, when: "'nginx_servers' in group_names", tags: nginx-servers_tag }
     - { role: os-servers, when: "'os-cluster' in group_names", tags: os-servers_tag }
     - { role: dashboard-servers, when: "'dasboards' in group_names", tags: os-servers_tag }

@@ -275,13 +275,15 @@ module "os-servers" {
   source         = "./modules/instances"
   count          = local.os_count
   vm_name        = "os-${format("%02d", count.index + 1)}"
+  cpu            = 4
+  memory         = 8
   vpc_name       = local.vpc_name
   #folder_id      = yandex_resourcemanager_folder.folders["lab-folder"].id
   network_interface = {
     for subnet in yandex_vpc_subnet.subnets :
     subnet.name => {
       subnet_id = subnet.id
-      #nat       = true
+      nat       = true
     }
     if subnet.name == "lab-subnet" #|| subnet.name == "nginx-subnet"
   }

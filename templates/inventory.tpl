@@ -1,22 +1,22 @@
 
 [all]
 %{ for jump-server in jump-servers ~}
-${ jump-server["name"] } ansible_host=${ jump-server.network_interface[0].ip_address }
+${ jump-server["name"] } ansible_host=${ jump-server.network_interface[0].ip_address } ip=${ jump-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for db-server in db-servers ~}
-${ db-server["name"] } ansible_host=${ db-server.network_interface[0].ip_address }
+${ db-server["name"] } ansible_host=${ db-server.network_interface[0].ip_address } ip=${ db-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for iscsi-server in iscsi-servers ~}
-${ iscsi-server["name"] } ansible_host=${ iscsi-server.network_interface[0].ip_address }
+${ iscsi-server["name"] } ansible_host=${ iscsi-server.network_interface[0].ip_address } ip=${ iscsi-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for backend-server in backend-servers ~}
-${ backend-server["name"] } ansible_host=${ backend-server.network_interface[0].ip_address }
+${ backend-server["name"] } ansible_host=${ backend-server.network_interface[0].ip_address } ip=${ backend-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for nginx-server in nginx-servers ~}
-${ nginx-server["name"] } ansible_host=${ nginx-server.network_interface[0].ip_address }
+${ nginx-server["name"] } ansible_host=${ nginx-server.network_interface[0].ip_address } ip=${ nginx-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for os-server in os-servers ~}
-${ os-server["name"] } ansible_host=${ os-server.network_interface[0].ip_address }
+${ os-server["name"] } ansible_host=${ os-server.network_interface[0].ip_address } ip=${ os-server.network_interface[0].ip_address } roles=data,master
 %{ endfor ~}
 
 [jump_servers]
