@@ -46,8 +46,8 @@ ${ nginx-server["name"] }
 
 [os-cluster]
 os-01 roles=data,master
-os-01 roles=data,ingest
-os-01 roles=data,ingest
+os-02 roles=data,ingest
+os-03 roles=data,ingest
 
 [dashboards]
 jump-01

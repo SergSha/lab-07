@@ -1,0 +1,43 @@
+---
+- hosts: all
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  tasks:
+    - name: Set hostname
+      ansible.builtin.hostname:
+        name: "{{ ansible_hostname }}.{{ domain }}"
+
+    - name: Add my own IP address to /etc/hosts instead localhost
+      ansible.builtin.replace:
+        path: "/etc/hosts"
+        regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
+        replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
+
+    - name: Hosts | populate inventory into hosts file
+      ansible.builtin.blockinfile:
+        dest: /etc/hosts
+        block: |-
+          {% for item in groups['all'] %}
+          {{ hostvars[item]['ip'] }} {{ item }}.{{ domain }} {{ item }}
+          {% endfor %}
+        state: present
+        create: true
+        backup: true
+        marker: "# Ansible inventory hosts {mark}"
+      #when: populate_inventory_to_hosts_file
+
+- hosts: all
+  #remote_user: cloud-user
+  become: true
+  serial: 5
+  roles:
+    - { role: chrony, tags: chrony_tag }
+    - { role: jump-servers, when: "'jump_servers' in group_names", tags: jump-servers_tag }
+    #- { role: db-servers, when: "'db_servers' in group_names", tags: db-servers_tag }
+    #- { role: iscsi-servers, when: "'iscsi_servers' in group_names", tags: iscsi-servers_tag }
+    #- { role: backend-servers, when: "'backend_servers' in group_names", tags: backend-servers_tag }
+    ##- { role: haproxy-servers, when: "'haproxy_servers' in group_names" tags: haproxy-servers_tag }
+    #- { role: nginx-servers, when: "'nginx_servers' in group_names", tags: nginx-servers_tag }
+    - { role: os-servers, when: "'os-cluster' in group_names", tags: os-servers_tag }
+    - { role: dashboard-servers, when: "'dasboards' in group_names", tags: os-servers_tag }

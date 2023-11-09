@@ -317,7 +317,7 @@ resource "local_file" "inventory_file" {
   )
   filename = "${path.module}/inventory.ini"
 }
-
+/*
 resource "local_file" "provision_file" {
   content = templatefile("${path.module}/templates/provision.tpl",
     {
@@ -347,7 +347,7 @@ resource "local_file" "group_vars_all_file" {
   )
   filename = "${path.module}/group_vars/all/main.yml"
 }
-
+*/
 #resource "yandex_compute_disk" "disks" {
 #  for_each  = local.disks
 #  name      = each.key
@@ -370,7 +370,7 @@ resource "yandex_compute_disk" "disks" {
 #  #folder_id  = yandex_resourcemanager_folder.folders["lab-folder"].id
 #  depends_on = [yandex_compute_disk.disks]
 #}
-
+/*
 resource "yandex_lb_target_group" "keepalived_group" {
   name      = "keepalived-group"
   region_id = "ru-central1"
@@ -415,6 +415,7 @@ data "yandex_lb_network_load_balancer" "keepalived" {
   #folder_id = yandex_resourcemanager_folder.folders["lab-folder"].id
   depends_on = [yandex_lb_network_load_balancer.keepalived]
 }
+*/
 /*
 resource "null_resource" "nginx-servers" {
 
