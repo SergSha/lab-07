@@ -16,7 +16,7 @@ ${ backend-server["name"] } ansible_host=${ backend-server.network_interface[0].
 ${ nginx-server["name"] } ansible_host=${ nginx-server.network_interface[0].ip_address } ip=${ nginx-server.network_interface[0].ip_address }
 %{ endfor ~}
 %{ for os-server in os-servers ~}
-${ os-server["name"] } ansible_host=${ os-server.network_interface[0].ip_address } ip=${ os-server.network_interface[0].ip_address } roles=data,master
+${ os-server["name"] } ansible_host=${ os-server.network_interface[0].ip_address } ip=${ os-server.network_interface[0].ip_address }
 %{ endfor ~}
 
 [jump_servers]
@@ -45,19 +45,15 @@ ${ nginx-server["name"] }
 %{ endfor ~}
 
 [os-cluster]
-%{ for os-server in os-servers ~}
-${ os-server["name"] }
-%{ endfor ~}
+os-01 roles=data,master
+os-01 roles=data,ingest
+os-01 roles=data,ingest
 
 [dashboards]
-%{ for jump-server in jump-servers ~}
-${ jump-server["name"] }
-%{ endfor ~}
+jump-01
 
 [master]
-%{ for os-server in os-servers ~}
-${ os-server["name"] }
-%{ endfor ~}
+os-01
 
 [all:vars]
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ProxyJump="${ remote_user }@${ jump-servers[0].network_interface[0].nat_ip_address }"'

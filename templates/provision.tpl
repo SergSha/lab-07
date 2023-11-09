@@ -14,29 +14,29 @@
         regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
         replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
 
-    - name: Add nodes to /etc/hosts
-      ansible.builtin.lineinfile:
-        path: "/etc/hosts"
-        state: present
-        line: "{{ item }}"
-      loop:
+#    - name: Add nodes to /etc/hosts
+#      ansible.builtin.lineinfile:
+#        path: "/etc/hosts"
+#        state: present
+#        line: "{{ item }}"
+#      loop:
 %{ for jump-server in jump-servers ~}
-        #- "${ jump-server.network_interface[0].ip_address } ${ jump-server["name"] }.{{ domain }} ${ jump-server["name"] }"
+#        #- "${ jump-server.network_interface[0].ip_address } ${ jump-server["name"] }.{{ domain }} ${ jump-server["name"] }"
 %{ endfor ~}
 %{ for db-server in db-servers ~}
-        - "${ db-server.network_interface[0].ip_address } ${ db-server["name"] }.{{ domain }} ${ db-server["name"] }"
+#        - "${ db-server.network_interface[0].ip_address } ${ db-server["name"] }.{{ domain }} ${ db-server["name"] }"
 %{ endfor ~}
 %{ for iscsi-server in iscsi-servers ~}
-        - "${ iscsi-server.network_interface[0].ip_address } ${ iscsi-server["name"] }.{{ domain }} ${ iscsi-server["name"] }"
+#        - "${ iscsi-server.network_interface[0].ip_address } ${ iscsi-server["name"] }.{{ domain }} ${ iscsi-server["name"] }"
 %{ endfor ~}
 %{ for backend-server in backend-servers ~}
-        - "${ backend-server.network_interface[0].ip_address } ${ backend-server["name"] }.{{ domain }} ${ backend-server["name"] }"
+#        - "${ backend-server.network_interface[0].ip_address } ${ backend-server["name"] }.{{ domain }} ${ backend-server["name"] }"
 %{ endfor ~}
 %{ for nginx-server in nginx-servers ~}
-        - "${ nginx-server.network_interface[0].ip_address } ${ nginx-server["name"] }.{{ domain }} ${ nginx-server["name"] }"
+#        - "${ nginx-server.network_interface[0].ip_address } ${ nginx-server["name"] }.{{ domain }} ${ nginx-server["name"] }"
 %{ endfor ~}
 %{ for os-server in os-servers ~}
-        #- "${ os-server.network_interface[0].ip_address } ${ os-server["name"] }.{{ domain }} ${ os-server["name"] }"
+#        #- "${ os-server.network_interface[0].ip_address } ${ os-server["name"] }.{{ domain }} ${ os-server["name"] }"
 %{ endfor ~}
 
 - hosts: all
