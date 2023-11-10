@@ -44,7 +44,7 @@ ${ backend-server["name"] }
 ${ nginx-server["name"] }
 %{ endfor ~}
 
-[os-cluster]
+[os_servers]
 os-01 roles=data,master
 os-02 roles=data,ingest
 os-03 roles=data,ingest

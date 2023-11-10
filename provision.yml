@@ -1,6 +1,5 @@
 ---
 - hosts: all
-  #remote_user: cloud-user
   become: true
   serial: 5
   tasks:
@@ -27,17 +26,26 @@
         marker: "# Ansible inventory hosts {mark}"
       #when: populate_inventory_to_hosts_file
 
+#- hosts: all
+#  become: true
+#  serial: 5
+#  roles:
+#    - { role: chrony, tags: chrony_tag }
+
 - hosts: all
   #remote_user: cloud-user
   become: true
   serial: 5
+  vars:
+    admin_password: admin@Otus1234
+    logstash_password: logstash@Otus1234
+    kibanaserver_password: kibana@Otus1234
   roles:
-    - { role: chrony, tags: chrony_tag }
     - { role: jump-servers, when: "'jump_servers' in group_names", tags: jump-servers_tag }
     #- { role: db-servers, when: "'db_servers' in group_names", tags: db-servers_tag }
     #- { role: iscsi-servers, when: "'iscsi_servers' in group_names", tags: iscsi-servers_tag }
     #- { role: backend-servers, when: "'backend_servers' in group_names", tags: backend-servers_tag }
     ##- { role: haproxy-servers, when: "'haproxy_servers' in group_names" tags: haproxy-servers_tag }
     #- { role: nginx-servers, when: "'nginx_servers' in group_names", tags: nginx-servers_tag }
-    - { role: os-servers, when: "'os-cluster' in group_names", tags: os-servers_tag }
+    - { role: os-servers, when: "'os_servers' in group_names", tags: os-servers_tag }
     - { role: dashboard-servers, when: "'dasboards' in group_names", tags: os-servers_tag }

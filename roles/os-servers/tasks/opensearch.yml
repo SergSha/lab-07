@@ -1,36 +1,66 @@
 ---
 
-- name: OpenSearch Install | Download opensearch {{ os_version }}
-  ansible.builtin.get_url:
-    url: "{{ os_download_url }}/{{ os_version }}/opensearch-{{ os_version }}-linux-x64.tar.gz"
-    dest: "/tmp/opensearch.tar.gz"
-  register: download
+# os_download_url = https://artifacts.opensearch.org/releases/bundle/opensearch
 
-- name: OpenSearch Install | Create opensearch user
-  ansible.builtin.user:
-    name: "{{ os_user }}"
+# sudo rpm --import https://artifacts.opensearch.org/publickeys/opensearch.pgp
+- name: OpenSearch Install | Add pgp key
+  ansible.builtin.rpm_key:
+    key: https://artifacts.opensearch.org/publickeys/opensearch.pgp
     state: present
-    shell: /bin/false
-    create_home: true
-    home: "{{ os_home }}"
-  when: download.changed or iac_enable
 
-- name: OpenSearch Install | Create home directory
-  ansible.builtin.file:
-    path: "{{ os_home }}"
-    state: directory
-    owner: "{{ os_user }}"
-    group: "{{ os_user }}"
-  when: download.changed or iac_enable
+# curl -SL https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/opensearch-2.x.repo -o /etc/yum.repos.d/opensearch-2.x.repo
+- name: OpenSearch Install | Add opensearch repository
+  #ansible.builtin.yum_repository:
+  #  name: opensearch-2.x
+  #  description: OpenSearch 2.x
+  #  baseurl: "{{ os_download_url }}/2.x/opensearch-2.x.repo"
+  ansible.builtin.get_url:
+    url: https://artifacts.opensearch.org/releases/bundle/opensearch/2.x/opensearch-2.x.repo
+    dest: /etc/yum.repos.d/
 
-- name: OpenSearch Install | Extract the tar file
-  ansible.builtin.command: chdir=/tmp/ tar -xvzf opensearch.tar.gz -C "{{ os_home }}" --strip-components=1
-  when: download.changed or iac_enable
+# dnf clean all
+- name: OpenSearch Install | Update cache
+  ansible.builtin.dnf: 
+    update_cache: yes
+
+# dnf install 'opensearch-2.11.0' -y
+- name: OpenSearch Install | Install opensearch package
+  ansible.builtin.dnf:
+    name:
+      - "opensearch-{{ os_version }}"
+    state: latest
+
+# name: OpenSearch Install | Download opensearch {{ os_version }}
+#  ansible.builtin.get_url:
+#    url: "{{ os_download_url }}/{{ os_version }}/opensearch-{{ os_version }}-linux-x64.tar.gz"
+#    dest: "/tmp/opensearch.tar.gz"
+#  register: download
+
+#- name: OpenSearch Install | Extract the tar file
+#  ansible.builtin.command: chdir=/tmp/ tar -xvzf opensearch.tar.gz -C "{{ os_home }}" --strip-components=1
+#  when: download.changed or iac_enable
+
+#- name: OpenSearch Install | Create opensearch user
+#  ansible.builtin.user:
+#    name: "{{ os_user }}"
+#    state: present
+#    shell: /bin/false
+#    create_home: true
+#    home: "{{ os_home }}"
+#  when: download.changed or iac_enable
+
+#- name: OpenSearch Install | Create home directory
+#  ansible.builtin.file:
+#    path: "{{ os_home }}"
+#    state: directory
+#    owner: "{{ os_user }}"
+#    group: "{{ os_user }}"
+#  when: download.changed or iac_enable
 
 - name: OpenSearch Install | Copy Configuration File
   ansible.builtin.blockinfile:
     block: "{{ lookup('template', 'templates/opensearch-{{ cluster_type }}.yml') }}"
-    dest: "{{ os_conf_dir }}/opensearch.yml"
+    dest: /etc/opensearch/opensearch.yml
     backup: true
     state: present
     create: true
@@ -39,16 +69,129 @@
     group: "{{ os_user }}"
     mode: 0600
 
-- name: OpenSearch Install | Copy jvm.options File for Instance
-  ansible.builtin.template:
-    src: jvm.options
-    dest: "{{ os_conf_dir }}/jvm.options"
-    owner: "{{ os_user }}"
-    group: "{{ os_user }}"
-    mode: 0600
-    force: true
+#- name: OpenSearch Install | Copy jvm.options File for Instance
+#  ansible.builtin.template:
+#    src: jvm.options
+#    dest: "{{ os_conf_dir }}/jvm.options"
+#    owner: "{{ os_user }}"
+#    group: "{{ os_user }}"
+#    mode: 0600
+#    force: true
 
-- name: OpenSearch Install | create systemd service
-  ansible.builtin.template:
-    src: opensearch.service
-    dest: "{{ systemctl_path }}/opensearch.service"
+- name: OpenSearch Install | Copy jvm.options File for Instance
+  ansible.builtin.lineinfile:
+    path: /etc/opensearch/jvm.options
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    #backup: true
+  with_items: 
+    - { regexp: "^-Xms", line: "-Xms{{ xms_value }}g" }
+    - { regexp: "^-Xmx", line: "-Xmx{{ xmx_value }}g" }
+
+#- name: OpenSearch Install | create systemd service
+#  ansible.builtin.template:
+#    src: opensearch.service
+#    dest: "{{ systemctl_path }}/opensearch.service"
+
+# systemctl start opensearch
+- name: OpenSearch Install | Start opensearch
+  ansible.builtin.service:
+    name: opensearch
+    state: restarted
+    enabled: true
+
+
+
+##### SECURITY #####
+### Configure TLS ###
+
+# Navigate to the directory where the certificates will be stored.
+# cd /etc/opensearch
+
+# Delete the demo certificates
+# sudo rm -f *pem
+
+# # Create a private key for the root certificate
+# sudo openssl genrsa -out root-ca-key.pem 2048
+
+# Use the private key to create a self-signed root certificate. Be sure to
+# replace the arguments passed to -subj so they reflect your specific host.
+# sudo openssl req -new -x509 -sha256 -key root-ca-key.pem -subj "/C=CA/ST=ONTARIO/L=TORONTO/O=ORG/OU=UNIT/CN=ROOT" -out root-ca.pem -days 730
+
+# Create a private key for the admin certificate.
+# sudo openssl genrsa -out admin-key-temp.pem 2048
+
+# Convert the private key to PKCS#8.
+# sudo openssl pkcs8 -inform PEM -outform PEM -in admin-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out admin-key.pem
+   
+# Create the certficiate signing request (CSR). A common name (CN) of "A" is acceptable because this certificate is
+# used for authenticating elevated access and is not tied to a host.
+# sudo openssl req -new -key admin-key.pem -subj "/C=CA/ST=ONTARIO/L=TORONTO/O=ORG/OU=UNIT/CN=A" -out admin.csr
+   
+# Sign the admin certificate with the root certificate and private key you created earlier.
+# sudo openssl x509 -req -in admin.csr -CA root-ca.pem -CAkey root-ca-key.pem -CAcreateserial -sha256 -out admin.pem -days 730
+
+# Create a private key for the node certificate.
+#sudo openssl genrsa -out node1-key-temp.pem 2048
+   
+# Convert the private key to PKCS#8.
+#sudo openssl pkcs8 -inform PEM -outform PEM -in node1-key-temp.pem -topk8 -nocrypt -v1 PBE-SHA1-3DES -out node1-key.pem
+   
+# Create the CSR and replace the arguments passed to -subj so they reflect your specific host.
+# The CN should match a DNS A record for the host-do not use the hostname.
+#sudo openssl req -new -key node1-key.pem -subj "/C=CA/ST=ONTARIO/L=TORONTO/O=ORG/OU=UNIT/CN=node1.dns.a-record" -out node1.csr
+   
+# Create an extension file that defines a SAN DNS name for the host. This
+# should match the DNS A record of the host.
+#sudo sh -c 'echo subjectAltName=DNS:node1.dns.a-record > node1.ext'
+
+# Sign the node certificate with the root certificate and private key that you created earlier.
+#sudo openssl x509 -req -in node1.csr -CA root-ca.pem -CAkey root-ca-key.pem -CAcreateserial -sha256 -out node1.pem -days 730 -extfile node1.ext
+
+# Remove temporary files that are no longer required
+# sudo rm -f *temp.pem *csr *ext
+
+# Make sure the remaining certificates are owned by the opensearch user
+# sudo chown opensearch:opensearch admin-key.pem admin.pem node1-key.pem node1.pem root-ca-key.pem root-ca.pem root-ca.srl
+
+# Add these certificates to opensearch.yml as described in Generate Certificates. Advanced users might also choose to append the settings using a script:
+#-----------
+#! /bin/bash
+# Before running this script, make sure to replace the CN in the 
+# node's distinguished name with a real DNS A record.
+#echo "plugins.security.ssl.transport.pemcert_filepath: /etc/opensearch/node1.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.transport.pemkey_filepath: /etc/opensearch/node1-key.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/opensearch/root-ca.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.http.enabled: true" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.http.pemcert_filepath: /etc/opensearch/node1.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.http.pemkey_filepath: /etc/opensearch/node1-key.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.ssl.http.pemtrustedcas_filepath: /etc/opensearch/root-ca.pem" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.allow_default_init_securityindex: true" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.authcz.admin_dn:" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "  - 'CN=A,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.nodes_dn:" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "  - 'CN=node1.dns.a-record,OU=UNIT,O=ORG,L=TORONTO,ST=ONTARIO,C=CA'" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.audit.type: internal_opensearch" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.enable_snapshot_restore_privilege: true" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.check_snapshot_restore_write_privileges: true" | sudo tee -a /etc/opensearch/opensearch.yml
+#echo "plugins.security.restapi.roles_enabled: [\"all_access\", \"security_rest_api_access\"]" | sudo tee -a /etc/opensearch/opensearch.yml
+#-----------
+
+# Optional:
+# Add trust for the self-signed root certificate.
+# Copy the root certificate to the correct directory
+# sudo cp /etc/opensearch/root-ca.pem /etc/pki/ca-trust/source/anchors/
+
+# Add trust
+# sudo update-ca-trust
+
+
+### Configure a user ###
+
+
+
+
+
+
+
+
