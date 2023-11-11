@@ -44,16 +44,16 @@ ${ backend-server["name"] }
 ${ nginx-server["name"] }
 %{ endfor ~}
 
-[os_servers]
+[os-cluster]
 os-01 roles=data,master
 os-02 roles=data,ingest
 os-03 roles=data,ingest
 
-[dashboards]
-jump-01
-
 [master]
 os-01
+
+[dashboards]
+jump-01
 
 [all:vars]
 ansible_ssh_common_args='-o StrictHostKeyChecking=no -o ProxyJump="${ remote_user }@${ jump-servers[0].network_interface[0].nat_ip_address }"'

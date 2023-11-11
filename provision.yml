@@ -5,13 +5,13 @@
   tasks:
     - name: Set hostname
       ansible.builtin.hostname:
-        name: "{{ ansible_hostname }}.{{ domain }}"
+        name: "{{ inventory_hostname }}.{{ domain }}"
 
     - name: Add my own IP address to /etc/hosts instead localhost
       ansible.builtin.replace:
         path: "/etc/hosts"
-        regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
-        replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
+        regexp: '^127\.0\.0\.1(\s+){{ inventory_hostname }}(\s+){{ inventory_hostname }}.*'
+        replace: "{{ ansible_host }} {{ inventory_hostname }}.{{ domain }} {{ inventory_hostname }}"
 
     - name: Hosts | populate inventory into hosts file
       ansible.builtin.blockinfile:
@@ -32,20 +32,36 @@
 #  roles:
 #    - { role: chrony, tags: chrony_tag }
 
-- hosts: all
-  #remote_user: cloud-user
-  become: true
-  serial: 5
-  vars:
-    admin_password: admin@Otus1234
-    logstash_password: logstash@Otus1234
-    kibanaserver_password: kibana@Otus1234
-  roles:
-    - { role: jump-servers, when: "'jump_servers' in group_names", tags: jump-servers_tag }
+#- hosts: all
+#  #remote_user: cloud-user
+#  become: true
+#  serial: 5
+#  vars:
+#    admin_password: admin@Otus1234
+#    logstash_password: logstash@Otus1234
+#    kibanaserver_password: kibana@Otus1234
+#  roles:
+    #- { role: jump-servers, when: "'jump_servers' in group_names", tags: jump-servers_tag }
     #- { role: db-servers, when: "'db_servers' in group_names", tags: db-servers_tag }
     #- { role: iscsi-servers, when: "'iscsi_servers' in group_names", tags: iscsi-servers_tag }
     #- { role: backend-servers, when: "'backend_servers' in group_names", tags: backend-servers_tag }
     ##- { role: haproxy-servers, when: "'haproxy_servers' in group_names" tags: haproxy-servers_tag }
     #- { role: nginx-servers, when: "'nginx_servers' in group_names", tags: nginx-servers_tag }
-    - { role: os-servers, when: "'os_servers' in group_names", tags: os-servers_tag }
-    - { role: dashboard-servers, when: "'dasboards' in group_names", tags: os-servers_tag }
+    #- { role: os-servers, when: "'os_servers' in group_names", tags: os-servers_tag }
+    #- { role: opensearch, when: "'os-cluster' in group_names or ansible_hostname in localhost", tags: os-servers_tag }
+    #- { role: dashboards, when: "'dashboards' in group_names", tags: dasboards_tag }
+
+
+- name: Opensearch installation & configuration
+  hosts: os-cluster
+  gather_facts: true
+  become: true
+  roles:
+    - { role: opensearch }
+
+- name: Opensearch dashboards installation & configuration
+  hosts: dashboards
+  gather_facts: true
+  become: true
+  roles:
+    - { role: dashboards }
