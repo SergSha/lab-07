@@ -1,0 +1,3 @@
+path.data: /opt/logstash/data
+pipeline.ordered: auto
+path.logs: /var/log/logstash

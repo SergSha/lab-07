@@ -76,3 +76,6 @@
   debug:
     msg: "{{ os_roles }}"
   run_once: true
+
+- name: Include plugin for logstash
+  ansible.builtin.import_tasks: logstash.yml

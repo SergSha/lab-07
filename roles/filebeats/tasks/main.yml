@@ -1,0 +1,38 @@
+---
+## curl -L -O https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-8.11.0-x86_64.rpm 
+#- name: Logstash Install | Download Logstash {{ os_version }}
+#  ansible.builtin.get_url:
+#    url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-8.11.0-x86_64.rpm
+#    dest: /tmp/filebeat-8.11.0-x86_64.rpm
+#  register: download
+
+- name: Filebeat Install | Copy Filebeat package
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "/tmp/{{ item }}"
+  loop:
+    - filebeat-oss-8.11.0-x86_64.rpm
+    - GPG-KEY-elasticsearch
+
+# rpm --import https://artifacts.elastic.co/GPG-KEY-elasticsearch
+- name: Filebeat Install | Import GPG key
+  ansible.builtin.rpm_key:
+    state: present
+    #key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    key: /tmp/GPG-KEY-elasticsearch
+
+- name: Filebeat Install | Install filebeat
+  ansible.builtin.dnf:
+    name: /tmp/filebeat-oss-8.11.0-x86_64.rpm
+    state: present
+
+#- name: Filebeat Install | Configure Filebeat
+#  ansible.builtin.template:
+#    src: filebeat.yml.j2
+#    dest: /etc/filebeat/filebeat.yml
+
+- name: Filebeat Install | Start filebeat
+  ansible.builtin.systemd:
+    name: filebeat
+    state: restarted
+    enabled: true

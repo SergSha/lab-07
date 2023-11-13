@@ -26,11 +26,12 @@
         marker: "# Ansible inventory hosts {mark}"
       #when: populate_inventory_to_hosts_file
 
-#- hosts: all
-#  become: true
-#  serial: 5
-#  roles:
-#    - { role: chrony, tags: chrony_tag }
+- hosts: all
+  become: true
+  serial: 5
+  roles:
+    - { role: chrony, tags: chrony_tag }
+    - { role: filebeats, tags: filebeats }
 
 #- hosts: all
 #  #remote_user: cloud-user
