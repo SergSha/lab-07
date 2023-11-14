@@ -63,7 +63,7 @@
   loop: 
     - { source: 'logstash.yml', destination: '/opt/logstash/config/logstash.yml' }
     - { source: 'pipelines.yml', destination: '/opt/logstash/config/pipelines.yml' }
-    #- { source: 'logstash.conf.j2', destination: '/opt/logstash/config/conf.d/custom.conf' }
+    - { source: 'logstash.conf.j2', destination: '/opt/logstash/config/conf.d/logstash.conf' }
 
 # cp logstash.service /etc/systemd/system/logstash.service && \
 # chown -R root:root /etc/systemd/system/logstash.service && \
@@ -78,7 +78,7 @@
 
 # systemctl daemon-reload && \
 # systemctl enable --now logstash.service
-- name: Logstash Install | Make sure logstash is started
+- name: Logstash Install | Start logstash
   ansible.builtin.service:
     name: logstash
     state: restarted

@@ -1,7 +1,7 @@
 filebeat.inputs:
 - type: filestream
   id: {{ inventory_hostname }}-id
-  enabled: false
+  enabled: true
   paths:
     - /var/log/*.log
 {% if inventory_hostname in groups.nginx_servers %}

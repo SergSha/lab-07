@@ -276,7 +276,7 @@ module "os-servers" {
   count          = local.os_count
   vm_name        = "os-${format("%02d", count.index + 1)}"
   cpu            = 2
-  memory         = 4
+  memory         = 8
   vpc_name       = local.vpc_name
   #folder_id      = yandex_resourcemanager_folder.folders["lab-folder"].id
   network_interface = {
