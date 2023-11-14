@@ -20,7 +20,7 @@
 
 # iscsiadm -m discovery -t st -p iscsi-server
 - name: iscsiadm -m discovery -t sendtargets -p iscsi-server
-  ansible.builtin.command: "iscsiadm --mode discovery --type sendtargets --portal {{ ip_address['iscsi-01'] }}"
+  ansible.builtin.command: "iscsiadm --mode discovery --type sendtargets --portal {{ hostvars['iscsi-01']['ip'] }}"
   when: iscsi_iniciator_config_done.stat.exists != True
   
 # iscsiadm -m node -l -T iqn.2023-09.local.otus:storage.target00

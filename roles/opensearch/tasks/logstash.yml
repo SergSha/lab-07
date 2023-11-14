@@ -28,8 +28,8 @@
     - /var/log/logstash
 
 # tar -xvzf logstash.tar.gz -C /opt/logstash --strip-components=1
-- name: Logstash Install | Extract the tar file
-  ansible.builtin.command: chdir=/tmp/ tar -xvzf logstash.tar.gz -C /opt/logstash --strip-components=1
+#- name: Logstash Install | Extract the tar file
+#  ansible.builtin.command: chdir=/tmp/ tar -xvzf logstash.tar.gz -C /opt/logstash --strip-components=1
 - name: Logstash Install | Download and extract the tar file
   ansible.builtin.unarchive:
     src: /tmp/logstash.tar.gz

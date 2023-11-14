@@ -32,10 +32,10 @@ locals {
   #subnet_cidrs  = ["10.10.50.0/24"]
   #subnet_name   = "my_vpc_subnet"
   jump_count     = "1"
-  db_count       = "0"
-  iscsi_count    = "0"
-  backend_count  = "0"
-  nginx_count    = "0"
+  db_count       = "3"
+  iscsi_count    = "1"
+  backend_count  = "2"
+  nginx_count    = "2"
   os_count       = "3"
   /*
   disk = {
@@ -275,8 +275,8 @@ module "os-servers" {
   source         = "./modules/instances"
   count          = local.os_count
   vm_name        = "os-${format("%02d", count.index + 1)}"
-  cpu            = 4
-  memory         = 8
+  cpu            = 2
+  memory         = 4
   vpc_name       = local.vpc_name
   #folder_id      = yandex_resourcemanager_folder.folders["lab-folder"].id
   network_interface = {
@@ -317,37 +317,6 @@ resource "local_file" "inventory_file" {
   )
   filename = "${path.module}/inventory.ini"
 }
-/*
-resource "local_file" "provision_file" {
-  content = templatefile("${path.module}/templates/provision.tpl",
-    {
-      jump-servers     = data.yandex_compute_instance.jump-servers
-      db-servers       = data.yandex_compute_instance.db-servers
-      iscsi-servers    = data.yandex_compute_instance.iscsi-servers
-      backend-servers  = data.yandex_compute_instance.backend-servers
-      nginx-servers    = data.yandex_compute_instance.nginx-servers
-      os-servers       = data.yandex_compute_instance.os-servers
-      remote_user      = local.vm_user
-    }
-  )
-  filename = "${path.module}/provision.yml"
-}
-
-resource "local_file" "group_vars_all_file" {
-  content = templatefile("${path.module}/templates/group_vars_all.tpl",
-    {
-      jump-servers     = data.yandex_compute_instance.jump-servers
-      db-servers       = data.yandex_compute_instance.db-servers
-      iscsi-servers    = data.yandex_compute_instance.iscsi-servers
-      backend-servers  = data.yandex_compute_instance.backend-servers
-      nginx-servers    = data.yandex_compute_instance.nginx-servers
-      os-servers       = data.yandex_compute_instance.os-servers
-      subnet_cidrs     = yandex_vpc_subnet.subnets["lab-subnet"].v4_cidr_blocks
-    }
-  )
-  filename = "${path.module}/group_vars/all/main.yml"
-}
-*/
 #resource "yandex_compute_disk" "disks" {
 #  for_each  = local.disks
 #  name      = each.key
@@ -370,7 +339,7 @@ resource "yandex_compute_disk" "disks" {
 #  #folder_id  = yandex_resourcemanager_folder.folders["lab-folder"].id
 #  depends_on = [yandex_compute_disk.disks]
 #}
-/*
+
 resource "yandex_lb_target_group" "keepalived_group" {
   name      = "keepalived-group"
   region_id = "ru-central1"
@@ -415,7 +384,7 @@ data "yandex_lb_network_load_balancer" "keepalived" {
   #folder_id = yandex_resourcemanager_folder.folders["lab-folder"].id
   depends_on = [yandex_lb_network_load_balancer.keepalived]
 }
-*/
+
 /*
 resource "null_resource" "nginx-servers" {
 

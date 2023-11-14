@@ -44,6 +44,11 @@ ${ backend-server["name"] }
 ${ nginx-server["name"] }
 %{ endfor ~}
 
+[os_servers]
+%{ for os-server in os-servers ~}
+${ os-server["name"] }
+%{ endfor ~}
+
 [os-cluster]
 os-01 roles=data,master
 os-02 roles=data,ingest

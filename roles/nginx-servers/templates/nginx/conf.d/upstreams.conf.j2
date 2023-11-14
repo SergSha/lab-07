@@ -1,6 +1,7 @@
 # Balance server
 
 upstream backend {
-        server {{ ip_address['backend-01'] }}:8080 max_fails=2 fail_timeout=90s;
-        server {{ ip_address['backend-02'] }}:8080 max_fails=2 fail_timeout=90s;
+{% for item in groups.backend_servers %}
+        server {{ hostvars[item].ansible_host }}:8080 max_fails=1;
+{% endfor %}
 }
