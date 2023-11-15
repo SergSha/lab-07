@@ -32,7 +32,7 @@ locals {
   #subnet_cidrs  = ["10.10.50.0/24"]
   #subnet_name   = "my_vpc_subnet"
   jump_count     = "1"
-  db_count       = "3"
+  db_count       = "1"
   iscsi_count    = "1"
   backend_count  = "2"
   nginx_count    = "2"
@@ -221,7 +221,7 @@ module "backend-servers" {
     for subnet in yandex_vpc_subnet.subnets :
     subnet.name => {
       subnet_id = subnet.id
-      nat       = true
+      #nat       = true
     }
     if subnet.name == "lab-subnet" #|| subnet.name == "backend-subnet"
   }
@@ -283,7 +283,7 @@ module "os-servers" {
     for subnet in yandex_vpc_subnet.subnets :
     subnet.name => {
       subnet_id = subnet.id
-      nat       = true
+      #nat       = true
     }
     if subnet.name == "lab-subnet" #|| subnet.name == "nginx-subnet"
   }

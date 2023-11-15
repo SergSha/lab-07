@@ -1,15 +1,14 @@
 filebeat.inputs:
 - type: filestream
-  id: {{ inventory_hostname }}-id
+  id: {{ inventory_hostname }}-logs
   enabled: true
   paths:
-    - /var/log/*.log
-{% if inventory_hostname in groups.nginx_servers %}
+{% if inventory_hostname in groups['nginx_servers'] %}
     - /var/log/nginx/*.log
-{% elif inventory_hostname in groups.backend_servers %}
+{% elif inventory_hostname in groups['backend_servers'] %}
     - /var/log/nginx/*.log
-{% elif inventory_hostname in groups.db_servers %}
-    - /var/log/mysql/*.err
+{% elif inventory_hostname in groups['db_servers'] %}
+    - /var/log/mysqld.log
 {% endif %}
 
 output.logstash:

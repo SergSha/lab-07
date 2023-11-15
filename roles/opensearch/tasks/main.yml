@@ -1,9 +1,9 @@
 ---
 
-- name: Set hostname
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}"
-  ignore_errors: true
+#- name: Set hostname
+#  ansible.builtin.hostname:
+#    name: "{{ inventory_hostname }}"
+#  ignore_errors: true
 
 # Disabling for Amazon Linux 2 as selinux is disabled by default.
 - name: Disable the selinux
@@ -11,8 +11,8 @@
     state: disabled
   when: (ansible_distribution != "Ubuntu") and (ansible_distribution != "Amazon")
 
-- name: Populate the nodes to /etc/hosts
-  ansible.builtin.import_tasks: etchosts.yml
+#- name: Populate the nodes to /etc/hosts
+#  ansible.builtin.import_tasks: etchosts.yml
 
 - name: Tune the system settings
   ansible.builtin.import_tasks: tune.yml

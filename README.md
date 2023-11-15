@@ -72,7 +72,7 @@ backend-servers-info = {
   }
   "backend-02" = {
     "ip_address" = tolist([
-      "10.10.10.31",
+      "10.10.10.13",
     ])
     "nat_ip_address" = tolist([
       "",
@@ -82,23 +82,7 @@ backend-servers-info = {
 db-servers-info = {
   "db-01" = {
     "ip_address" = tolist([
-      "10.10.10.28",
-    ])
-    "nat_ip_address" = tolist([
-      "",
-    ])
-  }
-  "db-02" = {
-    "ip_address" = tolist([
-      "10.10.10.27",
-    ])
-    "nat_ip_address" = tolist([
-      "",
-    ])
-  }
-  "db-03" = {
-    "ip_address" = tolist([
-      "10.10.10.16",
+      "10.10.10.12",
     ])
     "nat_ip_address" = tolist([
       "",
@@ -108,7 +92,7 @@ db-servers-info = {
 iscsi-servers-info = {
   "iscsi-01" = {
     "ip_address" = tolist([
-      "10.10.10.7",
+      "10.10.10.40",
     ])
     "nat_ip_address" = tolist([
       "",
@@ -118,32 +102,17 @@ iscsi-servers-info = {
 jump-servers-info = {
   "jump-01" = {
     "ip_address" = tolist([
-      "10.10.10.29",
+      "10.10.10.8",
     ])
     "nat_ip_address" = tolist([
-      "158.160.68.18",
+      "51.250.22.210",
     ])
   }
 }
-loadbalancer-info = toset([
-  {
-    "external_address_spec" = toset([
-      {
-        "address" = "158.160.69.81"
-        "ip_version" = "ipv4"
-      },
-    ])
-    "internal_address_spec" = toset([])
-    "name" = "http-listener"
-    "port" = 80
-    "protocol" = "tcp"
-    "target_port" = 80
-  },
-])
 nginx-servers-info = {
   "nginx-01" = {
     "ip_address" = tolist([
-      "10.10.10.18",
+      "10.10.10.31",
     ])
     "nat_ip_address" = tolist([
       "",
@@ -151,7 +120,33 @@ nginx-servers-info = {
   }
   "nginx-02" = {
     "ip_address" = tolist([
-      "10.10.10.25",
+      "10.10.10.6",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+}
+os-servers-info = {
+  "os-01" = {
+    "ip_address" = tolist([
+      "10.10.10.17",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "os-02" = {
+    "ip_address" = tolist([
+      "10.10.10.11",
+    ])
+    "nat_ip_address" = tolist([
+      "",
+    ])
+  }
+  "os-03" = {
+    "ip_address" = tolist([
+      "10.10.10.24",
     ])
     "nat_ip_address" = tolist([
       "",
@@ -162,7 +157,7 @@ nginx-servers-info = {
 
 На всех серверах будут установлены ОС Almalinux 8, настроены смнхронизация времени Chrony, система принудительного контроля доступа SELinux, в качестве firewall будет использоваться NFTables.
 
-Стенд был взят из лабораторной работы 4 https://github.com/SergSha/lab-04. К этому стенду добавляем кластер, состоящий из серверов os-01, os-02 и os-03. Для создания OpenSearch кластера будем использовать кластер PostgreSQL с ипользованием Patroni, ETCD и HAProxy.
+Стенд был взят из лабораторной работы 4 https://github.com/SergSha/lab-04. Для создания OpenSearch кластера к этому стенду добавляем кластер, состоящий из серверов os-01, os-02 и os-03. На сервер Jump-01, так он имеет публичный IP адрес, будем устанавливать OpenSearch Dashboard.
 
 Так как на YandexCloud ограничено количество выделяемых публичных IP адресов, в дополнение к этому стенду создадим ещё один сервер jump-01 в качестве JumpHost, через который будем подключаться по SSH (в частности для Ansible) к другим серверам той же подсети.
 
@@ -170,9 +165,122 @@ nginx-servers-info = {
 
 <img src="pics/screen-001.png" alt="screen-001.png" />
 
-С помощью ssh через jump-сервер jump-01 подключися к какому-либо сервера PostgreSQL кластера, например, db-02:
+Для проверки работы стенда воспользуемся отображением простой страницы собственноручно созданного сайта на PHP, 
+имитирующий продажу новых и подержанных автомобилей:
+
+<img src="pics/screen-002.png" alt="screen-002.png" />
+
+Значение IP адреса сайта получен от балансировщика от YandexCloud:
+
+<img src="pics/screen-003.png" alt="screen-003.png" />
+
+Страница OpenSearch Dashboard открывается в браузере, вводя в адресную строку публичный IP адрес сервера jump-01 с портом 5601:
 ```
-ssh -J cloud-user@158.160.68.18 cloud-user@10.10.10.27
+51.250.22.210:5601
 ```
 
-Посмотрим конфиги кластера:
+<img src="pics/screen-004.png" alt="screen-004.png" />
+
+Вводим логин и пароль и кликаем по кнопке "Log In":
+
+<img src="pics/screen-005.png" alt="screen-005.png" />
+
+Стартовая страница:
+
+<img src="pics/screen-006.png" alt="screen-006.png" />
+
+Кликаем на "Главное меню", выбираем "Discover":
+
+<img src="pics/screen-007.png" alt="screen-007.png" />
+
+Кликаем по кнопке "Create index pattern":
+
+<img src="pics/screen-008.png" alt="screen-008.png" />
+
+<img src="pics/screen-009.png" alt="screen-009.png" />
+
+В поле "Index pattern name" вводим "logstash-*" и кликаем по кнопке "Next step":
+
+<img src="pics/screen-010.png" alt="screen-010.png" />
+
+<img src="pics/screen-011.png" alt="screen-011.png" />
+
+Из списка "Time field" выбираем "@timestamp":
+
+<img src="pics/screen-012.png" alt="screen-012.png" />
+
+<img src="pics/screen-013.png" alt="screen-013.png" />
+
+Кликаем по кнопке "Create index pattern":
+
+<img src="pics/screen-014.png" alt="screen-014.png" />
+
+<img src="pics/screen-015.png" alt="screen-015.png" />
+
+Снова кликаем по кнопке "Главное меню" и выбираем "Discover":
+
+<img src="pics/screen-016.png" alt="screen-016.png" />
+
+Получаем следующую картину:
+
+<img src="pics/screen-017.png" alt="screen-017.png" />
+
+Отключим одну виртуальную машину из кластера OpenSearch, например, os-01:
+
+<img src="pics/screen-018.png" alt="screen-018.png" />
+
+<img src="pics/screen-019.png" alt="screen-019.png" />
+
+Обновим страницу:
+
+<img src="pics/screen-020.png" alt="screen-020.png" />
+
+<img src="pics/screen-021.png" alt="screen-021.png" />
+
+Как видим, страница работает с отключенным os-01.
+
+Отключим ещё одну виртуальную машину из кластера OpenSearch, например, os-02:
+
+<img src="pics/screen-022.png" alt="screen-022.png" />
+
+Обновим страницу:
+
+<img src="pics/screen-023.png" alt="screen-023.png" />
+
+<img src="pics/screen-024.png" alt="screen-024.png" />
+
+Как видим, страница работает при включенном os-03 и отключенных os-01 и os-02.
+
+Включим виртуальную машину os-01 и отключим os-03:
+
+<img src="pics/screen-025.png" alt="screen-025.png" />
+
+Обновим страницу:
+
+<img src="pics/screen-026.png" alt="screen-026.png" />
+
+<img src="pics/screen-027.png" alt="screen-027.png" />
+
+Как видим, страница работает при включенном os-01 и отключенных os-02 и os-03.
+
+Включим виртуальную машину os-02 и снова отключим os-01:
+
+<img src="pics/screen-028.png" alt="screen-028.png" />
+
+Снова обновим страницу:
+
+<img src="pics/screen-029.png" alt="screen-029.png" />
+
+<img src="pics/screen-030.png" alt="screen-030.png" />
+
+Как видим, страница работает при включенном os-02 и отключенных os-01 и os-03.
+
+Можно делать вывод, чтобы кластер OpenSearch корректно функционирует при любых вариантах отключения серверов.
+
+
+#### Удаление стенда
+
+Удалить развернутый стенд командой:
+```
+terraform destroy -auto-approve
+```

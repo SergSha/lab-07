@@ -1,25 +1,25 @@
 ---
-- name: Set hostname
-  ansible.builtin.hostname:
-    name: "{{ inventory_hostname }}.{{ domain }}"
+#- name: Set hostname
+#  ansible.builtin.hostname:
+#    name: "{{ inventory_hostname }}.{{ domain }}"
 
-- name: Add my own IP address to /etc/hosts instead localhost
-  ansible.builtin.replace:
-    path: "/etc/hosts"
-    regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
-    replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
+#- name: Add my own IP address to /etc/hosts instead localhost
+#  ansible.builtin.replace:
+#    path: "/etc/hosts"
+#    regexp: '^127\.0\.0\.1(\s+){{ ansible_hostname }}(\s+){{ ansible_hostname }}.*'
+#    replace: "{{ ansible_host }} {{ ansible_hostname }}.{{ domain }} {{ ansible_hostname }}"
 
-- name: Hosts | populate inventory into hosts file
-  ansible.builtin.blockinfile:
-    dest: /etc/hosts
-    block: |-
-      {% for item in groups['backend_servers'] %}
-      {{ hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
-      {% endfor %}
-    state: present
-    create: true
-    #backup: true
-    marker: "# Ansible inventory hosts {mark}"
+#- name: Hosts | populate inventory into hosts file
+#  ansible.builtin.blockinfile:
+#    dest: /etc/hosts
+#    block: |-
+#      {% for item in groups['backend_servers'] %}
+#      {{ hostvars[item]['ip'] }} {{ item }}.{{ domain_name }} {{ item }}
+#      {% endfor %}
+#    state: present
+#    create: true
+#    #backup: true
+#    marker: "# Ansible inventory hosts {mark}"
 
 - name: Redhat OS
   block:
