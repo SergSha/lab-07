@@ -109,6 +109,21 @@ jump-servers-info = {
     ])
   }
 }
+loadbalancer-info = toset([
+  {
+    "external_address_spec" = toset([
+      {
+        "address" = "158.160.130.50"
+        "ip_version" = "ipv4"
+      },
+    ])
+    "internal_address_spec" = toset([])
+    "name" = "http-listener"
+    "port" = 80
+    "protocol" = "tcp"
+    "target_port" = 80
+  },
+])
 nginx-servers-info = {
   "nginx-01" = {
     "ip_address" = tolist([
