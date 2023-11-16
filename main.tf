@@ -45,13 +45,13 @@ locals {
   }
   */
 }
-/*
+
 resource "yandex_resourcemanager_folder" "folders" {
   for_each = local.folders
   name     = each.key
   cloud_id = local.cloud_id
 }
-*/
+
 #data "yandex_resourcemanager_folder" "folders" {
 #  for_each   = yandex_resourcemanager_folder.folders
 #  name       = each.value["name"]
@@ -70,7 +70,7 @@ data "yandex_vpc_network" "vpc" {
 
 #resource "yandex_vpc_subnet" "subnet" {
 #  count          = length(local.subnet_cidrs)
-#  folder_id = yandex_resourcemanager_folder.folders["lab-folder"].id
+#  folder_id      = yandex_resourcemanager_folder.folders["lab-folder"].id
 #  v4_cidr_blocks = local.subnet_cidrs
 #  zone           = local.zone
 #  name           = "${local.subnet_name}${format("%1d", count.index + 1)}"
