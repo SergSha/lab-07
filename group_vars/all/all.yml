@@ -98,8 +98,3 @@ custom_security_plugin_configs:
 # /tmp/opensearch-nodecerts directory was missing on the server from which the
 # playbook was launched and new certificates were generated)
 iac_enable: true
-
-
-admin_password: admin@Otus1234
-logstash_password: logstash@Otus1234
-kibanaserver_password: kibana@Otus1234

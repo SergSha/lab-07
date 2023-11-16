@@ -51,10 +51,13 @@ ssh_public_key  = "~/.ssh/id_rsa.pub"
 ssh_private_key = "~/.ssh/id_rsa"
 ```
 
-Для того чтобы развернуть стенд, нужно выполнить следующую команду:
+Для того чтобы развернуть стенд, нужно выполнить следующую команду, вставляя свои значения (пароли) для переменных admin_password, kibanaserver_password, logstash_password:
 ```
 terraform init && terraform apply -auto-approve && \
-sleep 60 && ansible-playbook ./provision.yml
+sleep 60 && ansible-playbook ./provision.yml \
+--extra-vars "admin_password=admin@Otus1234 \
+kibanaserver_password=kibana@Otus1234 \
+logstash_password=logstash@Otus1234"
 ```
 
 По завершению команды получим данные outputs:
